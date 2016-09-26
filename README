@@ -1,0 +1,52 @@
+This repository contains the code used to construct the Docker image:
+
+https://hub.docker.com/r/sorear/fedora-riscv-wip
+
+---
+
+This is the RISC-V Fedora userland from Richard W.M. Jones et al, repackaged
+for Docker with the QEMU user emulator fork developed by Alex Suykov.
+
+ * About RISC-V: https://riscv.org/
+ * Fedora coordinaton page: https://fedoraproject.org/wiki/Architectures/RISC-V
+ * QEMU fork: https://github.com/arsv/riscv-qemu
+ * Build script for this image: https://github.com/sorear/fedora-riscv-useremu
+
+To set up a RISC-V userland testing environment, use:
+
+    docker run -it sorear/fedora-riscv-wip
+
+You will need binfmt_misc configured in order to actually use this; the
+container checks this, and will print instructions (or if run with --privileged
+it can do the configuration itself; don't do this if you care about the host
+integrity, because that turns off the sandbox).
+
+That image includes a large set of compiled RPMs suitable for basic
+development.  You can instead download a much smaller image,
+`sorear/fedora-riscv-wip:minimal`, (109 MB versus 667 MB), and download RPMs
+as needed from the [coordination site][RPMS].  Once we have dnf working on
+RISC-V this will probably become the preferred option.
+
+[RPMS]: https://fedorapeople.org/groups/risc-v/RPMS
+
+---
+
+The dev environment must be installed from RPMs using the rpm or tdnf command,
+for instance:
+
+    tdnf --releasever 25 install libffi-devel libtool-ltdl-devel m4
+
+The files are installed in /var/tmp/RPMS, or can be downloaded with curl;
+the kernel-headers package is necessary for most tasks but is not in either
+image and can be fetched at:
+
+https://fedorapeople.org/groups/risc-v/SRPMS/kernel-headers-4.1.26-1.fc25.src.rpm
+
+A list of package that you probably want to install before trying to compile
+anything is in the autobuilder:
+
+    https://github.com/rwmjones/fedora-riscv-autobuild/blob/4b78ecf5/autobuild.ml#L174
+
+After installing those, kernel-headers, m4, libtool-ltdl-devel, and
+libffi-devel, and replacing iconv with a link to /bin/true, I was able to
+rebuild the source package gforth-0.7.3-3.fc24.src.rpm as a test.

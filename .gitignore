@@ -1,0 +1,13 @@
+build-full/checksetup
+build-full/qemu-riscv64
+build-minimal/checksetup
+build-minimal/qemu-riscv64
+checksetup
+qemu-riscv64
+riscv-qemu
+stage4-disk.img.xz
+stage4-full-fat-disk.img.xz
+stamp-docker-full
+stamp-docker-full-bare
+stamp-docker-minimal
+stamp-docker-minimal-bare
