@@ -1,0 +1,5 @@
+[riscv]
+name=RISCV built RPMS
+baseurl=https://fedorapeople.org/groups/risc-v/RPMS
+enabled=1
+gpgcheck=0

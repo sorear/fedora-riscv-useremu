@@ -50,3 +50,5 @@ anything is in the autobuilder:
 After installing those, kernel-headers, m4, libtool-ltdl-devel, and
 libffi-devel, and replacing iconv with a link to /bin/true, I was able to
 rebuild the source package gforth-0.7.3-3.fc24.src.rpm as a test.
+
+    bash bzip2 coreutils cpio diffutils elfutils fedora-release findutils gawk hack-gcc glibc-headers grep gzip info make patch redhat-rpm-config rpm-build sed shadow-utils tar unzip util-linux which xz
