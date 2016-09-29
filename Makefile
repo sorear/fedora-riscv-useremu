@@ -8,18 +8,18 @@ stage4-disk.img.xz:
 	mv $@-t $@
 
 # configure script seems buggy and detects libraries that can't be statically linked
-qemu-riscv64:
-	rm -rf $@ riscv-qemu
-	git clone -b devel https://github.com/sorear/riscv-qemu
-	cd riscv-qemu && mkdir build && cd build && ../configure --static --target-list=riscv64-linux-user --disable-libnfs --disable-nettle --disable-gnutls --disable-libiscsi --disable-glusterfs --disable-libssh2 --disable-uuid && $(MAKE)
-	cp riscv-qemu/build/riscv64-linux-user/qemu-riscv64 $@
+qemu-riscv64-arsv:
+	rm -rf $@ riscv-qemu-arsv
+	git clone -b devel https://github.com/sorear/riscv-qemu riscv-qemu-arsv
+	cd riscv-qemu-arsv && mkdir build && cd build && ../configure --static --target-list=riscv64-linux-user --disable-libnfs --disable-nettle --disable-gnutls --disable-libiscsi --disable-glusterfs --disable-libssh2 --disable-uuid && $(MAKE)
+	cp riscv-qemu-arsv/build/riscv64-linux-user/qemu-riscv64 $@
 
 # configure script seems buggy and detects libraries that can't be statically linked
-qemu-riscv64-ALT:
-	rm -rf $@ riscv-qemu-ALT
-	git clone https://github.com/riscv/riscv-qemu riscv-qemu-ALT
-	cd riscv-qemu-ALT && mkdir build && cd build && ../configure --static --target-list=riscv64-linux-user --disable-libnfs --disable-nettle --disable-gnutls --disable-libiscsi --disable-glusterfs --disable-libssh2 --disable-uuid && $(MAKE)
-	cp riscv-qemu-ALT/build/riscv64-linux-user/qemu-riscv64 $@
+qemu-riscv64:
+	rm -rf $@ riscv-qemu
+	git clone https://github.com/riscv/riscv-qemu riscv-qemu
+	cd riscv-qemu && mkdir build && cd build && ../configure --static --target-list=riscv64-linux-user --disable-libnfs --disable-nettle --disable-gnutls --disable-libiscsi --disable-glusterfs --disable-libssh2 --disable-uuid && $(MAKE)
+	cp riscv-qemu/build/riscv64-linux-user/qemu-riscv64 $@
 
 stamp-docker-minimal-bare: stage4-disk.img.xz
 	unxz -k stage4-disk.img.xz
@@ -31,11 +31,11 @@ stamp-docker-minimal-bare: stage4-disk.img.xz
 checksetup: checksetup.c
 	cc -o $@ -static $<
 
-stamp-docker-minimal: checksetup qemu-riscv64 qemu-riscv64-ALT stamp-docker-minimal-bare
+stamp-docker-minimal: checksetup qemu-riscv64 qemu-riscv64-arsv stamp-docker-minimal-bare
 	mkdir -p build-minimal/tree/usr/bin build-minimal/tree/etc/yum.repos.d
 	strip checksetup -o build-minimal/tree/checksetup
+	strip qemu-riscv64-arsv -o build-minimal/tree/usr/bin/qemu-riscv64-arsv
 	strip qemu-riscv64 -o build-minimal/tree/usr/bin/qemu-riscv64
-	strip qemu-riscv64-ALT -o build-minimal/tree/usr/bin/qemu-riscv64-ALT
 	cp riscv.repo build-minimal/tree/etc/yum.repos.d/riscv.repo
 	docker build -t $(DOCKER_REPO):minimal build-minimal
 	docker tag $(DOCKER_REPO):minimal $(DOCKER_REPO):minimal-$$(date -u +%F-%H%M)
