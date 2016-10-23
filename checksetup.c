@@ -3,6 +3,7 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <sys/mount.h>
+#include <sys/wait.h>
 #include <errno.h>
 #include <fcntl.h>
 
@@ -41,16 +42,43 @@ int reregister() {
 	return 0;
 }
 
+static void try_run_user(int argc, char** argv) {
+	/* check if arch emu works */
+	pid_t ch = fork();
+	int status;
+	if (ch < 0) {
+		perror("fork");
+		_exit(1); /* no sense even continuing; exit parent */
+	}
+	if (ch == 0) {
+		execl("/bin/true", "true", 0);
+		perror("exec");
+		_exit(1);
+	}
+	if (wait(&status) < 0) {
+		perror("wait");
+		_exit(1); /* no sense even continuing; exit parent */
+	}
+	if (WIFEXITED(status) && WEXITSTATUS(status) == 0) {
+		/* arch emu works; run user program */
+		static char* default_argv[] = {"", "bash", 0};
+		if (argc <= 1) {
+			argv = default_argv;
+		}
+		execvp(argv[1], argv+1);
+		perror("exec");
+		_exit(1); /* whatever this is, it's not an emul problem */
+	}
+}
+
 int main(int argc, char** argv) {
-	execv("/bin/bash", argv);
-	perror("exec");
+	try_run_user(argc, argv);
 
 	fputs("\n\
 Starting architecture emulation failed.  Attempting to reconfigure the\n\
 binfmt_misc mapping for RISC-V ELF files.\n\n", stderr);
 	if (reregister() == 0) {
-		execv("/bin/bash", argv);
-		perror("exec");
+		try_run_user(argc, argv);
 	}
 
 	fputs("\n\
