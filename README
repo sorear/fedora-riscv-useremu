@@ -22,16 +22,12 @@ container checks this, and will print instructions (or if run with --privileged
 it can do the configuration itself; don't do this if you care about the host
 integrity, because that turns off the sandbox).
 
-`tdnf` works in the image out of the box, downloading packages from the Fedora
-RISC-V community workspace, and has a very similar command interface to dnf.
-You can also use `tdnf install -y dnf` if you want.
+`dnf` works in the image out of the box, downloading packages from the Fedora
+RISC-V community workspace.
 
 If you want to build RPMs, you'll need to install the @buildsys-base packages:
 
-    tdnf install -y bash bzip2 coreutils cpio diffutils elfutils \
-        fedora-release findutils gawk hack-gcc glibc-headers grep gzip info \
-        make patch redhat-rpm-config rpm-build sed shadow-utils tar unzip \
-        util-linux which xz
+    dnf install -y @buildsys-base
 
 /usr/bin/qemu-risv64-arsv is the pre-convergence emulator if you need it for
 troubleshooting a regression.
