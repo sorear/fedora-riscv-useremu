@@ -9,7 +9,7 @@ for Docker with the RISC-V QEMU fork (Alex Suykov's user mode extensions have
 now been merged into the RISC-V tree).
 
  * About RISC-V: https://riscv.org/
- * Fedora coordinaton page: https://fedoraproject.org/wiki/Architectures/RISC-V
+ * Fedora coordination page: https://fedoraproject.org/wiki/Architectures/RISC-V
  * QEMU fork: https://github.com/riscv/riscv-qemu
  * Build script for this image: https://github.com/sorear/fedora-riscv-useremu
 
