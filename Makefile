@@ -21,6 +21,12 @@ qemu-riscv64:
 	cd riscv-qemu && mkdir build && cd build && ../configure --static --target-list=riscv64-linux-user --disable-libnfs --disable-nettle --disable-gnutls --disable-libiscsi --disable-glusterfs --disable-libssh2 --disable-uuid && $(MAKE)
 	cp riscv-qemu/build/riscv64-linux-user/qemu-riscv64 $@
 
+qemu-riscv64-g:
+	rm -rf $@ riscv-qemu-g
+	git clone https://github.com/riscv/riscv-qemu riscv-qemu-g
+	cd riscv-qemu-g && mkdir build && cd build && ../configure --static --target-list=riscv64-linux-user --disable-libnfs --disable-nettle --disable-gnutls --disable-libiscsi --disable-glusterfs --disable-libssh2 --disable-uuid --enable-debug && $(MAKE)
+	cp riscv-qemu-g/build/riscv64-linux-user/qemu-riscv64 $@
+
 stamp-docker-minimal-bare: stage4-disk.img.xz
 	unxz -k stage4-disk.img.xz
 	virt-tar-out -a stage4-disk.img / - | docker import - $(DOCKER_REPO):minimal-bare-latest

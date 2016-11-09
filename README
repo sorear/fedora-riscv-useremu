@@ -31,3 +31,10 @@ If you want to build RPMs, you'll need to install the @buildsys-base packages:
 
 /usr/bin/qemu-risv64-arsv is the pre-convergence emulator if you need it for
 troubleshooting a regression.
+
+## Notes:
+
+Python prints `qemu: Unsupported syscall: 278` on startup; this has been
+determined to be harmless.  (It refers to `getrandom`; the system call is
+relatively new, and Python automatically falls back to `/dev/urandom` on
+receiving the ENOSYS error.)

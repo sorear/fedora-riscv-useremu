@@ -20,6 +20,13 @@ void clear_old_riscv64() {
 
 int reregister() {
 	int fd,res;
+	if (access("/proc/version", F_OK) < 0 && errno == ENOENT) {
+		res = mount("proc", "/proc", "proc", 0, "");
+		if (res < 0) {
+			perror("mount /proc");
+			return -1;
+		}
+	}
 	if (access("/proc/sys/fs/binfmt_misc/register", F_OK) < 0 && errno == ENOENT) {
 		res = mount("binfmt_misc", "/proc/sys/fs/binfmt_misc", "binfmt_misc", 0, "");
 		if (res < 0) {
