@@ -1,0 +1,58 @@
+diff --git a/linux-user/signal.c b/linux-user/signal.c
+index 4d3f244612..fea4f345c8 100644
+--- a/linux-user/signal.c
++++ b/linux-user/signal.c
+@@ -26,6 +26,13 @@
+ #include "target_signal.h"
+ #include "trace.h"
+ 
++#ifndef __SIGRTMIN
++#define __SIGRTMIN 32
++#endif
++#ifndef __SIGRTMAX
++#define __SIGRTMAX (NSIG-1)
++#endif
++
+ static struct target_sigaltstack target_sigaltstack_used = {
+     .ss_sp = 0,
+     .ss_size = 0,
+diff --git a/linux-user/syscall.c b/linux-user/syscall.c
+index 5fbdc6857a..8cccddc96b 100644
+--- a/linux-user/syscall.c
++++ b/linux-user/syscall.c
+@@ -113,6 +113,13 @@
+ 
+ #include "qemu.h"
+ 
++#ifndef F_SHLCK
++#define F_SHLCK 8
++#endif
++#ifndef F_EXLCK
++#define F_EXLCK 4
++#endif
++
+ #ifndef CLONE_IO
+ #define CLONE_IO                0x80000000      /* Clone io context */
+ #endif
+@@ -7071,10 +7078,20 @@ static inline abi_long host_to_target_timex(abi_long target_addr,
+     return 0;
+ }
+ 
++struct host_sigevent {
++    union sigval sigev_value;
++    int sigev_signo;
++    int sigev_notify;
++    union {
++       int _pad[64-sizeof(int) * 2 + sizeof(union sigval)];
++       int _tid;
++    } _sigev_un;
++};
+ 
+-static inline abi_long target_to_host_sigevent(struct sigevent *host_sevp,
++static inline abi_long target_to_host_sigevent(struct sigevent *sevp,
+                                                abi_ulong target_addr)
+ {
++    struct host_sigevent *host_sevp = (struct host_sigevent *) sevp;
+     struct target_sigevent *target_sevp;
+ 
+     if (!lock_user_struct(VERIFY_READ, target_sevp, target_addr, 1)) {

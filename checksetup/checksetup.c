@@ -58,7 +58,7 @@ static void try_run_user(int argc, char** argv) {
 		_exit(1); /* no sense even continuing; exit parent */
 	}
 	if (ch == 0) {
-		execl("/bin/true", "true", 0);
+		execl("/bin/true", "true", (void*)0);
 		perror("exec");
 		_exit(1);
 	}

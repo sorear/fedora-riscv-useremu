@@ -2,30 +2,20 @@ DOCKER_REPO=sorear/fedora-riscv-wip
 
 all: stamp-docker-minimal
 
+bin/qemu-riscv64: qemu-riscv64/Dockerfile qemu-riscv64/musl-build.patch
+	docker build -t sorear/qemu-riscv64 qemu-riscv64
+	docker run --rm sorear/qemu-riscv64 cat riscv-qemu/riscv64-linux-user/qemu-riscv64 > $@
+	chmod +x $@
+
+bin/checksetup: checksetup/Dockerfile checksetup/checksetup.c
+	docker build -t sorear/checksetup checksetup
+	docker run --rm sorear/checksetup cat checksetup > $@
+	chmod +x $@
+
 stage4-disk.img.xz:
 	rm -f $@ $@-t
 	wget -O $@-t https://fedorapeople.org/groups/risc-v/disk-images/stage4-disk.img.xz
 	mv $@-t $@
-
-# configure script seems buggy and detects libraries that can't be statically linked
-qemu-riscv64-arsv:
-	rm -rf $@ riscv-qemu-arsv
-	git clone -b devel https://github.com/sorear/riscv-qemu riscv-qemu-arsv
-	cd riscv-qemu-arsv && mkdir build && cd build && ../configure --static --target-list=riscv64-linux-user --disable-libnfs --disable-nettle --disable-gnutls --disable-libiscsi --disable-glusterfs --disable-libssh2 --disable-uuid && $(MAKE)
-	cp riscv-qemu-arsv/build/riscv64-linux-user/qemu-riscv64 $@
-
-# configure script seems buggy and detects libraries that can't be statically linked
-qemu-riscv64:
-	rm -rf $@ riscv-qemu
-	git clone https://github.com/riscv/riscv-qemu riscv-qemu
-	cd riscv-qemu && mkdir build && cd build && ../configure --static --target-list=riscv64-linux-user --disable-libnfs --disable-nettle --disable-gnutls --disable-libiscsi --disable-glusterfs --disable-libssh2 --disable-uuid && $(MAKE)
-	cp riscv-qemu/build/riscv64-linux-user/qemu-riscv64 $@
-
-qemu-riscv64-g:
-	rm -rf $@ riscv-qemu-g
-	git clone https://github.com/riscv/riscv-qemu riscv-qemu-g
-	cd riscv-qemu-g && mkdir build && cd build && ../configure --static --target-list=riscv64-linux-user --disable-libnfs --disable-nettle --disable-gnutls --disable-libiscsi --disable-glusterfs --disable-libssh2 --disable-uuid --enable-debug && $(MAKE)
-	cp riscv-qemu-g/build/riscv64-linux-user/qemu-riscv64 $@
 
 stamp-docker-minimal-bare: stage4-disk.img.xz
 	unxz -k stage4-disk.img.xz
@@ -33,9 +23,6 @@ stamp-docker-minimal-bare: stage4-disk.img.xz
 	docker tag $(DOCKER_REPO):minimal-bare-latest $(DOCKER_REPO):minimal-bare-$$(date -u +%F-%H%M)
 	rm stage4-disk.img
 	touch $@
-
-checksetup: checksetup.c
-	cc -o $@ -static $<
 
 stamp-docker-minimal: checksetup qemu-riscv64 qemu-riscv64-arsv stamp-docker-minimal-bare
 	mkdir -p build-minimal/tree/usr/bin build-minimal/tree/etc/yum.repos.d
