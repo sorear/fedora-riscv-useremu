@@ -17,7 +17,7 @@ index 4d3f244612..fea4f345c8 100644
      .ss_sp = 0,
      .ss_size = 0,
 diff --git a/linux-user/syscall.c b/linux-user/syscall.c
-index 5fbdc6857a..8cccddc96b 100644
+index 5fbdc6857a..bec1a55dff 100644
 --- a/linux-user/syscall.c
 +++ b/linux-user/syscall.c
 @@ -113,6 +113,13 @@
@@ -34,7 +34,17 @@ index 5fbdc6857a..8cccddc96b 100644
  #ifndef CLONE_IO
  #define CLONE_IO                0x80000000      /* Clone io context */
  #endif
-@@ -7071,10 +7078,20 @@ static inline abi_long host_to_target_timex(abi_long target_addr,
+@@ -3733,6 +3740,9 @@ static abi_long do_sendrecvmsg_locked(int fd, struct target_msghdr *msgp,
+     struct iovec *vec;
+     abi_ulong target_vec;
+ 
++    /* Make sure padding slots, if any, are zero */
++    memset(&msg, 0, sizeof(msg));
++
+     if (msgp->msg_name) {
+         msg.msg_namelen = tswap32(msgp->msg_namelen);
+         msg.msg_name = alloca(msg.msg_namelen+1);
+@@ -7071,10 +7081,20 @@ static inline abi_long host_to_target_timex(abi_long target_addr,
      return 0;
  }
  

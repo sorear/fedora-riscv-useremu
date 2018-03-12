@@ -6,6 +6,7 @@ RUN unzip riscv-qemu.zip && \
     mv riscv-qemu-6256f8ac6004677cc4652b1fcd77c839dfc05015 riscv-qemu && \
     cd riscv-qemu && \
     patch -p1 < /musl-build.patch && \
-    ./configure --target-list=riscv64-linux-user --disable-werror --static --disable-capstone && \
+    ./configure --target-list=riscv64-linux-user --disable-werror --static \
+        --disable-capstone --disable-tools --disable-guest-agent && \
     make -j4 && \
     strip riscv64-linux-user/qemu-riscv64

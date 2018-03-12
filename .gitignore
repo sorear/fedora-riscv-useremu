@@ -1,5 +1,2 @@
-build-minimal/tree
-bin
-stage4-disk.img.xz
-stamp-docker-minimal
-stamp-docker-minimal-bare
+out
+fedora-riscv/tree
